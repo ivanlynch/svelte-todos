@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "file": "bundle.css",
+  "sources": [
+    "../../App.svelte",
+    "../../Todos.svelte"
+  ],
+  "sourcesContent": [
+    "<script>\n\timport ApolloClient from 'apollo-boost';\n\timport { setClient } from 'svelte-apollo';\n\tconst client = new ApolloClient({ uri: 'https://todos-graphql.herokuapp.com/graphql' });\n\timport Todos from './components/Todos.svelte';\n\tsetClient(client);\n</script>\n\n<main>\n\t<h1>Todos Svelte</h1>\n\t<Todos/>\n</main>\n\n<style>\n\tmain {\n\t\ttext-align: center;\n\t\tpadding: 1em;\n\t\tmax-width: 240px;\n\t\tmargin: 0 auto;\n\t}\n\n\th1 {\n\t\tcolor: #ff3e00;\n\t\ttext-transform: uppercase;\n\t\tfont-size: 4em;\n\t\tfont-weight: 100;\n\t}\n\n\t@media (min-width: 640px) {\n\t\tmain {\n\t\t\tmax-width: none;\n\t\t}\n\t}\n</style>",
+    "<script>\n  import { getClient, query, mutate } from \"svelte-apollo\";\n  import { gql } from \"apollo-boost\";\n\n  const GET_TODOS = gql`\n    {\n      getTodos {\n        id\n        done\n        text\n      }\n    }\n  `;\n  const ADD_TODO = gql`\n    mutation($text: String!) {\n      addTodo(text: $text) {\n        id\n        done\n        text\n      }\n    }\n  `;\n  let text = '';\n  const client = getClient();\n  const todos = query(client, { query: GET_TODOS });\n  function addTodo() {\n      mutate(client, {\n          mutation: ADD_TODO,\n          variables: {\n              text\n          }\n      })\n      .then(() => {\n              text = '';\n              todos.refetch();\n      })\n      .catch(err => {\n          console.log(err);\n      });\n  }\n</script>\n\n<style>\n  ul {\n    list-style: none;\n  }\n\n  .done {\n    text-decoration: line-through;\n  }\n\n  .error {\n    color: red;\n  }\n</style>\n\n<h2>Todos</h2>\n<form on:submit|preventDefault={addTodo}>\n  <input bind:value={text} placeholder=\"Add your todo\" />\n  <button>Submit</button>\n</form>\n<ul>\n  {#await $todos}\n    Loading...\n  {:then result}\n    <p>Total todos: {result.data.getTodos.length}</p>\n    {#each result.data.getTodos as todo}\n      <li class:done={todo.done}>{todo.text}</li>\n    {/each}\n  {:catch error}\n    <p class=\"error\">{error}</p>\n  {/await}\n</ul>\n"
+  ],
+  "names": [],
+  "mappings": "AAcC,IAAI,eAAC,CAAC,AACL,UAAU,CAAE,MAAM,CAClB,OAAO,CAAE,GAAG,CACZ,SAAS,CAAE,KAAK,CAChB,MAAM,CAAE,CAAC,CAAC,IAAI,AACf,CAAC,AAED,EAAE,eAAC,CAAC,AACH,KAAK,CAAE,OAAO,CACd,cAAc,CAAE,SAAS,CACzB,SAAS,CAAE,GAAG,CACd,WAAW,CAAE,GAAG,AACjB,CAAC,AAED,MAAM,AAAC,YAAY,KAAK,CAAC,AAAC,CAAC,AAC1B,IAAI,eAAC,CAAC,AACL,SAAS,CAAE,IAAI,AAChB,CAAC,AACF,CAAC;ACWA,EAAE,eAAC,CAAC,AACF,UAAU,CAAE,IAAI,AAClB,CAAC,AAED,KAAK,eAAC,CAAC,AACL,eAAe,CAAE,YAAY,AAC/B,CAAC,AAED,MAAM,eAAC,CAAC,AACN,KAAK,CAAE,GAAG,AACZ,CAAC"
+}
